@@ -13,7 +13,7 @@ import toast from 'react-hot-toast'
 export function Topbar() {
   const [dropOpen, setDropOpen] = useState(false)
   const { toggleSidebar, toggleDarkMode, darkMode } = useUiStore()
-  const { user, profile, isAdmin } = useAuth()
+  const { user, mahasiswa, isAdmin } = useAuth()
   const clearAuth = useAuthStore((s) => s.clearAuth)
   const navigate = useNavigate()
   const dropRef = useRef(null)
@@ -61,12 +61,12 @@ export function Topbar() {
       {/* User dropdown */}
       <div className="relative" ref={dropRef}>
         <button onClick={() => setDropOpen(!dropOpen)} className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-          <Avatar name={profile?.nama || user?.email} size="sm" />
+          <Avatar name={mahasiswa?.nama || user?.email} size="sm" />
           <div className="hidden sm:block text-left">
             <p className="text-xs font-semibold text-slate-700 dark:text-slate-200 leading-tight max-w-[120px] truncate">
-              {profile?.nama || user?.email}
+              {mahasiswa?.nama || user?.email}
             </p>
-            <p className="text-[10px] text-slate-400 capitalize">{profile?.role}</p>
+            <p className="text-[10px] text-slate-400 capitalize">{user?.role}</p>
           </div>
         </button>
 

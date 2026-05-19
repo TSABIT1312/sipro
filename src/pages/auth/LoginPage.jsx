@@ -5,11 +5,14 @@ import { motion } from 'framer-motion'
 import { Eye, EyeOff, GraduationCap, Lock, User, ArrowRight } from 'lucide-react'
 import { login } from '@/services/authService'
 import { useAuth } from '@/hooks/useAuth'
+import { useAuthStore } from '@/store/authStore'
+import { api } from '@/lib/api'
 import { ROUTES } from '@/constants/routes'
 import toast from 'react-hot-toast'
 
 export default function LoginPage() {
   const { isAuthenticated, role, isLoading } = useAuth()
+  const setAuth = useAuthStore(s => s.setAuth)
   const navigate = useNavigate()
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -29,9 +32,11 @@ export default function LoginPage() {
     setLoading(true)
     try {
       await login(identifier, password)
+      const data = await api.get('/auth/me')
+      setAuth(data, data.mahasiswa || null)
+      navigate(data.role === 'admin' ? ROUTES.ADMIN_DASHBOARD : ROUTES.DASHBOARD, { replace: true })
     } catch (e) {
-      const msg = e.message?.includes('Invalid') ? 'NIM/Email atau password salah' : e.message
-      toast.error(msg)
+      toast.error(e.message || 'NIM/Email atau password salah')
     } finally {
       setLoading(false)
     }

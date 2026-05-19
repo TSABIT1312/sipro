@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form'
 import { useAuth } from '@/hooks/useAuth'
 import { usePengumuman } from '@/hooks/usePengumuman'
 import { getPengumumanAll, createPengumuman, updatePengumuman, deletePengumuman } from '@/services/pengumumanService'
-import { useAuthStore } from '@/store/authStore'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { Modal, ConfirmModal } from '@/components/ui/Modal'
@@ -98,8 +97,7 @@ function PengumumanForm({ defaultValues, onSubmit, onClose, loading }) {
 }
 
 export default function PengumumanPage() {
-  const { isAdmin, user } = useAuth()
-  const profile = useAuthStore(s => s.profile)
+  const { isAdmin } = useAuth()
   const [kategoriFilter, setKategoriFilter] = useState('')
   const [modal, setModal] = useState(null)
   const [editData, setEditData] = useState(null)
@@ -119,7 +117,7 @@ export default function PengumumanPage() {
   const handleSave = async (values) => {
     setSaving(true)
     try {
-      const payload = { ...values, author_id: profile?.id }
+      const payload = { ...values }
       if (editData) { await updatePengumuman(editData.id, payload); toast.success('Pengumuman diperbarui') }
       else { await createPengumuman(payload); toast.success('Pengumuman diterbitkan') }
       setModal(null); setEditData(null)

@@ -12,7 +12,7 @@ import toast from 'react-hot-toast'
 
 export function Sidebar() {
   const { sidebarOpen, toggleSidebar } = useUiStore()
-  const { profile, isAdmin, user } = useAuth()
+  const { mahasiswa, isAdmin, user } = useAuth()
   const clearAuth = useAuthStore((s) => s.clearAuth)
   const menu = isAdmin ? ADMIN_MENU : MAHASISWA_MENU
 
@@ -134,7 +134,7 @@ export function Sidebar() {
         {/* User card */}
         <div className="p-2 border-t border-white/10 shrink-0">
           <div className="flex items-center gap-3 px-2 py-2 rounded-lg">
-            <Avatar name={profile?.nama || user?.email} size="sm" className="shrink-0" />
+            <Avatar name={mahasiswa?.nama || user?.email} size="sm" className="shrink-0" />
             <AnimatePresence>
               {sidebarOpen && (
                 <motion.div
@@ -144,9 +144,9 @@ export function Sidebar() {
                   className="flex-1 min-w-0"
                 >
                   <p className="text-xs font-semibold text-white truncate">
-                    {profile?.nama || user?.email}
+                    {mahasiswa?.nama || user?.email}
                   </p>
-                  <p className="text-[10px] text-white/50 truncate capitalize">{profile?.role}</p>
+                  <p className="text-[10px] text-white/50 truncate capitalize">{user?.role}</p>
                 </motion.div>
               )}
             </AnimatePresence>

@@ -1,27 +1,17 @@
 import { create } from 'zustand'
+import { clearToken } from '@/lib/api'
 
 export const useAuthStore = create((set) => ({
-  user: null,
-  profile: null,
+  user: null,       // { id, email, role, nim }
+  mahasiswa: null,  // mahasiswa row (if role=mahasiswa)
   isLoading: true,
 
-  setUser: (user) => set({ user }),
-  setProfile: (profile) => set({ profile }),
   setLoading: (isLoading) => set({ isLoading }),
 
-  setAuth: (user, profile) => set({ user, profile, isLoading: false }),
+  setAuth: (user, mahasiswa = null) => set({ user, mahasiswa, isLoading: false }),
 
-  clearAuth: () => set({ user: null, profile: null, isLoading: false }),
-
-  get role() {
-    return this.profile?.role ?? null
-  },
-
-  get isAdmin() {
-    return this.profile?.role === 'admin'
-  },
-
-  get isMahasiswa() {
-    return this.profile?.role === 'mahasiswa'
+  clearAuth: () => {
+    clearToken()
+    set({ user: null, mahasiswa: null, isLoading: false })
   },
 }))

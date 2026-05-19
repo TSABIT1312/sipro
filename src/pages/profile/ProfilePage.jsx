@@ -5,8 +5,8 @@ import { Camera, Save, Lock, User, Mail, Phone, MapPin, Building2 } from 'lucide
 import { useAuth } from '@/hooks/useAuth'
 import { useMahasiswaSelf } from '@/hooks/useMahasiswa'
 import { useAuthStore } from '@/store/authStore'
-import { updateMahasiswa, uploadFoto } from '@/services/mahasiswaService'
-import { updatePassword } from '@/services/authService'
+import { updateMahasiswa } from '@/services/mahasiswaService'
+import { api } from '@/lib/api'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { Avatar } from '@/components/ui/Avatar'
 import toast from 'react-hot-toast'
@@ -14,7 +14,7 @@ import toast from 'react-hot-toast'
 export default function ProfilePage() {
   const { user, isAdmin } = useAuth()
   const { data: mhs, loading } = useMahasiswaSelf(user?.id)
-  const profile = useAuthStore(s => s.profile)
+  const mahasiswa = useAuthStore(s => s.mahasiswa)
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
   const [savingProfile, setSavingProfile] = useState(false)
   const [savingPass, setSavingPass] = useState(false)
@@ -35,13 +35,16 @@ export default function ProfilePage() {
     if (!file || !mhs) return
     setUploadingPhoto(true)
     try {
-      const url = await uploadFoto(file, mhs.nim)
-      await updateMahasiswa(mhs.id, { foto_url: url })
-      setPhotoUrl(url)
-      toast.success('Foto profil diperbarui')
+      const reader = new FileReader()
+      reader.onload = async (ev) => {
+        await updateMahasiswa(mhs.id, { foto_url: ev.target.result })
+        setPhotoUrl(ev.target.result)
+        toast.success('Foto profil diperbarui')
+        setUploadingPhoto(false)
+      }
+      reader.readAsDataURL(file)
     } catch (e) {
       toast.error(e.message)
-    } finally {
       setUploadingPhoto(false)
     }
   }
@@ -59,10 +62,10 @@ export default function ProfilePage() {
     }
   }
 
-  const handleSavePassword = async ({ password }) => {
+  const handleSavePassword = async ({ current_password, password }) => {
     setSavingPass(true)
     try {
-      await updatePassword(password)
+      await api.put('/profile', { current_password, new_password: password })
       toast.success('Password berhasil diubah')
       resetPass()
     } catch (e) {
@@ -156,6 +159,10 @@ export default function ProfilePage() {
         </h3>
         <form onSubmit={handlePass(handleSavePassword)} className="space-y-4 max-w-sm">
           <div className="space-y-1">
+            <label className="label">Password Lama</label>
+            <input type="password" {...regPass('current_password', { required: true })} className="input" />
+          </div>
+          <div className="space-y-1">
             <label className="label">Password Baru</label>
             <input type="password" {...regPass('password', { required: true, minLength: { value: 6, message: 'Min. 6 karakter' } })} className="input" placeholder="Min. 6 karakter" />
             {errPass.password && <p className="text-xs text-red-500">{errPass.password.message}</p>}
@@ -177,7 +184,7 @@ export default function ProfilePage() {
         <div className="grid grid-cols-2 gap-3 text-sm">
           {[
             { label: 'Email', value: user?.email },
-            { label: 'Role', value: profile?.role, className: 'capitalize' },
+            { label: 'Role', value: user?.role, className: 'capitalize' },
             { label: 'NIM', value: mhs?.nim || '-' },
             { label: 'Bergabung', value: user?.created_at ? new Date(user.created_at).toLocaleDateString('id-ID') : '-' },
           ].map(f => (

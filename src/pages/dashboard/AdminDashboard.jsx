@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Users, BookOpen, CalendarDays, Megaphone, Plus, UserPlus } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
-import { supabase } from '@/lib/supabase'
+import { api } from '@/lib/api'
 import { usePengumuman } from '@/hooks/usePengumuman'
 import { Badge, KATEGORI_BADGE } from '@/components/ui/Badge'
 import { StatsSkeleton } from '@/components/ui/Skeleton'
@@ -22,35 +22,20 @@ export default function AdminDashboard() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    async function loadStats() {
-      const [
-        { count: totalMhs },
-        { count: totalMk },
-        { count: totalJadwal },
-        { count: totalPengumuman },
-        { data: mhsList },
-      ] = await Promise.all([
-        supabase.from('mahasiswa').select('*', { count: 'exact', head: true }),
-        supabase.from('mata_kuliah').select('*', { count: 'exact', head: true }),
-        supabase.from('jadwal').select('*', { count: 'exact', head: true }),
-        supabase.from('pengumuman').select('*', { count: 'exact', head: true }).eq('is_published', true),
-        supabase.from('mahasiswa').select('prodi'),
-      ])
-
-      setStats({ totalMhs, totalMk, totalJadwal, totalPengumuman })
-
-      if (mhsList) {
-        const counts = mhsList.reduce((acc, m) => {
-          const key = m.prodi || 'Lainnya'
-          acc[key] = (acc[key] || 0) + 1
-          return acc
-        }, {})
-        setProdiData(Object.entries(counts).map(([name, value]) => ({ name: name.split(' ').slice(-1)[0], fullName: name, value })))
-      }
-
+    api.get('/admin/stats').then(data => {
+      setStats({
+        totalMhs: data.totalMahasiswa,
+        totalMk: data.totalMataKuliah,
+        totalJadwal: data.totalJadwal,
+        totalPengumuman: data.totalPengumuman,
+      })
+      setProdiData(data.distribusiProdi.map(d => ({
+        name: d.prodi?.split(' ').slice(-1)[0] || 'Lainnya',
+        fullName: d.prodi || 'Lainnya',
+        value: d.total,
+      })))
       setLoading(false)
-    }
-    loadStats()
+    }).catch(() => setLoading(false))
   }, [])
 
   const fadeUp = { initial: { opacity: 0, y: 12 }, animate: { opacity: 1, y: 0 } }
