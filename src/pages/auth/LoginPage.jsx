@@ -154,9 +154,6 @@ export default function LoginPage() {
                 </button>
               </div>
               {errors.password && <p className="text-xs text-red-500">{errors.password.message}</p>}
-              {isNIM && (
-                <p className="text-[11px] text-slate-400">Password kamu adalah tanggal lahir, contoh: 2005-02-21</p>
-              )}
             </div>
 
             <button
