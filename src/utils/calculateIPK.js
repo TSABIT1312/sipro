@@ -1,7 +1,7 @@
 export function calculateIPK(nilaiList) {
   if (!nilaiList || nilaiList.length === 0) return '0.00'
-  const totalBobot = nilaiList.reduce((sum, n) => sum + n.bobot * (n.mata_kuliah?.sks ?? 0), 0)
-  const totalSKS = nilaiList.reduce((sum, n) => sum + (n.mata_kuliah?.sks ?? 0), 0)
+  const totalBobot = nilaiList.reduce((sum, n) => sum + n.bobot * (n.sks ?? 0), 0)
+  const totalSKS = nilaiList.reduce((sum, n) => sum + (n.sks ?? 0), 0)
   return totalSKS > 0 ? (totalBobot / totalSKS).toFixed(2) : '0.00'
 }
 
@@ -11,7 +11,7 @@ export function calculateIPS(nilaiList, semester) {
 }
 
 export function totalSKS(nilaiList) {
-  return nilaiList.reduce((sum, n) => sum + (n.mata_kuliah?.sks ?? 0), 0)
+  return nilaiList.reduce((sum, n) => sum + (n.sks ?? 0), 0)
 }
 
 export function ipkColor(ipk) {

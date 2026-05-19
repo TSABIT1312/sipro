@@ -151,7 +151,7 @@ export default function MahasiswaDashboard() {
                   <div key={j.id} className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800">
                     <div className="w-1 h-10 rounded-full shrink-0" style={{ background: DAY_COLORS[idx % DAY_COLORS.length] }} />
                     <div className="min-w-0 flex-1">
-                      <p className="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate">{j.mata_kuliah?.nama}</p>
+                      <p className="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate">{j.mata_kuliah_nama}</p>
                       <p className="text-[11px] text-slate-400">{formatTime(j.jam_mulai)} – {formatTime(j.jam_selesai)} · {j.ruang}</p>
                     </div>
                   </div>
