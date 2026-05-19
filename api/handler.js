@@ -25,9 +25,10 @@ export default async function handler(req, res) {
   cors(res)
   if (req.method === 'OPTIONS') { res.status(204).end(); return }
 
-  const segments = req.query.path || []
+  // Parse path from URL (handles both catch-all query and direct URL)
+  const urlPath = req.url.split('?')[0]
+  const segments = urlPath.replace(/^\/api(\/handler)?/, '').split('/').filter(Boolean)
   const [r0, r1, r2] = segments
-  const route = `${r0 || ''}/${r1 || ''}`
   const id = r1 && !r2 && r1 !== 'login' && r1 !== 'register' && r1 !== 'me' && r1 !== 'stats' && r1 !== 'csv' ? r1 : null
 
   try {
@@ -285,3 +286,4 @@ export default async function handler(req, res) {
     res.status(500).json({ error: e.message || 'Internal server error' })
   }
 }
+
