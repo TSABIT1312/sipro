@@ -93,8 +93,8 @@ function AdminView() {
                 <tbody>
                   {grouped[h].map((j) => (
                     <tr key={j.id}>
-                      <td><p className="font-medium text-xs text-slate-700 dark:text-slate-200">{j.mata_kuliah?.nama}</p><p className="text-[11px] text-slate-400">{j.mata_kuliah?.kode}</p></td>
-                      <td className="text-xs">{j.mata_kuliah?.dosen || '-'}</td>
+                      <td><p className="font-medium text-xs text-slate-700 dark:text-slate-200">{j.mata_kuliah_nama}</p><p className="text-[11px] text-slate-400">{j.kode}</p></td>
+                      <td className="text-xs">{j.dosen || '-'}</td>
                       <td className="text-xs font-mono">{formatTime(j.jam_mulai)} – {formatTime(j.jam_selesai)}</td>
                       <td className="text-xs">{j.ruang || '-'}</td>
                       <td className="text-xs">{j.prodi || '-'} {j.semester ? `/ Sem ${j.semester}` : ''}</td>
@@ -164,7 +164,7 @@ function AdminView() {
       </Modal>
 
       <ConfirmModal open={!!deleteTarget} onClose={() => setDeleteTarget(null)} onConfirm={handleDelete}
-        title="Hapus Jadwal" message={`Hapus jadwal "${deleteTarget?.mata_kuliah?.nama}"?`} loading={deleting} />
+        title="Hapus Jadwal" message={`Hapus jadwal "${deleteTarget?.mata_kuliah_nama}"?`} loading={deleting} />
     </div>
   )
 }
@@ -195,8 +195,8 @@ function MahasiswaView() {
                   <div key={j.id} className="flex items-center gap-3 px-4 py-3">
                     <div className="w-1 h-10 rounded-full shrink-0" style={{ background: DAY_COLORS[h] }} />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-slate-800 dark:text-white truncate">{j.mata_kuliah?.nama}</p>
-                      <p className="text-xs text-slate-500">{j.mata_kuliah?.dosen} · {j.mata_kuliah?.sks} SKS</p>
+                      <p className="text-sm font-semibold text-slate-800 dark:text-white truncate">{j.mata_kuliah_nama}</p>
+                      <p className="text-xs text-slate-500">{j.dosen} · {j.sks} SKS</p>
                     </div>
                     <div className="text-right shrink-0">
                       <p className="text-xs font-mono font-semibold text-slate-700 dark:text-slate-200">{formatTime(j.jam_mulai)} – {formatTime(j.jam_selesai)}</p>

@@ -46,7 +46,7 @@ function AdminView() {
   const loadData = async () => {
     setLoading(true)
     const [n, m, mk] = await Promise.all([getNilaiAll({ limit: 50 }), getMahasiswaList({ limit: 100 }), getMatkulList()])
-    setNilaiList(n.data)
+    setNilaiList(Array.isArray(n) ? n : [])
     setMahasiswaList(m.data)
     setMatkulList(mk)
     setLoading(false)
@@ -91,12 +91,12 @@ function AdminView() {
               <tbody>
                 {nilaiList.map((n) => (
                   <tr key={n.id}>
-                    <td><p className="text-xs font-medium">{n.mahasiswa?.nama}</p><p className="text-[11px] text-slate-400">{n.mahasiswa?.nim}</p></td>
-                    <td className="text-xs">{n.mata_kuliah?.nama}</td>
+                    <td><p className="text-xs font-medium">{n.mahasiswa_nama}</p><p className="text-[11px] text-slate-400">{n.mahasiswa_nim}</p></td>
+                    <td className="text-xs">{n.mata_kuliah_nama}</td>
                     <td className="text-xs">Sem {n.semester}</td>
                     <td className="text-xs font-semibold">{n.nilai_angka}</td>
                     <td><Badge className={cn('badge', hurufColor(n.nilai_huruf))}>{n.nilai_huruf}</Badge></td>
-                    <td className="text-xs">{n.mata_kuliah?.sks}</td>
+                    <td className="text-xs">{n.sks}</td>
                     <td>
                       <button onClick={() => setDeleteTarget(n)} className="btn-ghost p-1.5 text-slate-500 hover:text-red-600 float-right"><Trash2 className="w-3.5 h-3.5" /></button>
                     </td>
@@ -165,7 +165,7 @@ function MahasiswaView() {
   const [openSem, setOpenSem] = useState(null)
 
   const chartData = semesters.map(s => ({ name: `Sem ${s}`, IPS: parseFloat(calculateIPS(data, s)) }))
-  const barData = data.map(n => ({ name: n.mata_kuliah?.kode, value: n.nilai_angka, huruf: n.nilai_huruf }))
+  const barData = data.map(n => ({ name: n.kode, value: n.nilai_angka, huruf: n.nilai_huruf }))
 
   return (
     <div className="page-container space-y-6">
@@ -248,8 +248,8 @@ function MahasiswaView() {
                         <tbody>
                           {semNilai.map(n => (
                             <tr key={n.id}>
-                              <td className="text-xs">{n.mata_kuliah?.nama}</td>
-                              <td className="text-xs">{n.mata_kuliah?.sks}</td>
+                              <td className="text-xs">{n.mata_kuliah_nama}</td>
+                              <td className="text-xs">{n.sks}</td>
                               <td className="text-xs font-semibold">{n.nilai_angka}</td>
                               <td><span className={cn('badge text-xs px-2 py-0.5 rounded-full', hurufColor(n.nilai_huruf))}>{n.nilai_huruf}</span></td>
                               <td className="text-xs">{n.bobot}</td>

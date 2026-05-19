@@ -133,8 +133,8 @@ export default async function handler(req, res) {
         if (session.role === 'admin') {
           const { mahasiswa_id } = req.query
           const rows = mahasiswa_id
-            ? await sql`select n.*,mk.nama as mata_kuliah_nama,mk.sks,mk.kode from nilai n join mata_kuliah mk on mk.id=n.mata_kuliah_id where n.mahasiswa_id=${mahasiswa_id} order by n.semester,mk.nama`
-            : await sql`select n.*,mk.nama as mata_kuliah_nama,mk.sks,mk.kode from nilai n join mata_kuliah mk on mk.id=n.mata_kuliah_id order by n.semester,mk.nama`
+            ? await sql`select n.*,mk.nama as mata_kuliah_nama,mk.sks,mk.kode,m.nama as mahasiswa_nama,m.nim as mahasiswa_nim from nilai n join mata_kuliah mk on mk.id=n.mata_kuliah_id join mahasiswa m on m.id=n.mahasiswa_id where n.mahasiswa_id=${mahasiswa_id} order by n.semester,mk.nama`
+            : await sql`select n.*,mk.nama as mata_kuliah_nama,mk.sks,mk.kode,m.nama as mahasiswa_nama,m.nim as mahasiswa_nim from nilai n join mata_kuliah mk on mk.id=n.mata_kuliah_id join mahasiswa m on m.id=n.mahasiswa_id order by n.semester,mk.nama`
           return res.json(rows)
         }
         const [mhs] = await sql`select id from mahasiswa where user_id=${session.id}`
