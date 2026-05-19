@@ -74,7 +74,24 @@ export default async function handler(req, res) {
       if (req.method === 'GET') {
         if (session.role === 'admin') {
           const { search, prodi, semester } = req.query
-          const rows = await sql`select * from mahasiswa where (${search||null} is null or lower(nama) like ${'%'+(search||'').toLowerCase()+'%'} or nim like ${'%'+(search||'')+'%'}) and (${prodi||null} is null or prodi=${prodi}) and (${semester||null} is null or semester=${Number(semester)||null}) order by nama`
+          let rows
+          if (search && prodi && semester) {
+            rows = await sql`select * from mahasiswa where (lower(nama) like ${'%'+search.toLowerCase()+'%'} or nim like ${'%'+search+'%'}) and prodi=${prodi} and semester=${Number(semester)} order by nama`
+          } else if (search && prodi) {
+            rows = await sql`select * from mahasiswa where (lower(nama) like ${'%'+search.toLowerCase()+'%'} or nim like ${'%'+search+'%'}) and prodi=${prodi} order by nama`
+          } else if (search && semester) {
+            rows = await sql`select * from mahasiswa where (lower(nama) like ${'%'+search.toLowerCase()+'%'} or nim like ${'%'+search+'%'}) and semester=${Number(semester)} order by nama`
+          } else if (prodi && semester) {
+            rows = await sql`select * from mahasiswa where prodi=${prodi} and semester=${Number(semester)} order by nama`
+          } else if (search) {
+            rows = await sql`select * from mahasiswa where lower(nama) like ${'%'+search.toLowerCase()+'%'} or nim like ${'%'+search+'%'} order by nama`
+          } else if (prodi) {
+            rows = await sql`select * from mahasiswa where prodi=${prodi} order by nama`
+          } else if (semester) {
+            rows = await sql`select * from mahasiswa where semester=${Number(semester)} order by nama`
+          } else {
+            rows = await sql`select * from mahasiswa order by nama`
+          }
           return res.json(rows)
         }
         const [mhs] = await sql`select * from mahasiswa where user_id = ${session.id}`
@@ -115,7 +132,9 @@ export default async function handler(req, res) {
       if (req.method === 'GET') {
         if (session.role === 'admin') {
           const { mahasiswa_id } = req.query
-          const rows = await sql`select n.*,mk.nama as mata_kuliah_nama,mk.sks,mk.kode from nilai n join mata_kuliah mk on mk.id=n.mata_kuliah_id where (${mahasiswa_id||null} is null or n.mahasiswa_id=${mahasiswa_id}) order by n.semester,mk.nama`
+          const rows = mahasiswa_id
+            ? await sql`select n.*,mk.nama as mata_kuliah_nama,mk.sks,mk.kode from nilai n join mata_kuliah mk on mk.id=n.mata_kuliah_id where n.mahasiswa_id=${mahasiswa_id} order by n.semester,mk.nama`
+            : await sql`select n.*,mk.nama as mata_kuliah_nama,mk.sks,mk.kode from nilai n join mata_kuliah mk on mk.id=n.mata_kuliah_id order by n.semester,mk.nama`
           return res.json(rows)
         }
         const [mhs] = await sql`select id from mahasiswa where user_id=${session.id}`
@@ -153,7 +172,17 @@ export default async function handler(req, res) {
           const [mhs] = await sql`select prodi,semester from mahasiswa where user_id=${session.id}`
           p = p || mhs?.prodi; s = s || mhs?.semester
         }
-        const rows = await sql`select j.*,mk.nama as mata_kuliah_nama,mk.sks,mk.kode,mk.dosen from jadwal j join mata_kuliah mk on mk.id=j.mata_kuliah_id where (${p||null} is null or j.prodi=${p}) and (${s||null} is null or j.semester=${Number(s)||null}) order by j.hari,j.jam_mulai`
+        let rows
+        const sem = s ? Number(s) : null
+        if (p && sem) {
+          rows = await sql`select j.*,mk.nama as mata_kuliah_nama,mk.sks,mk.kode,mk.dosen from jadwal j join mata_kuliah mk on mk.id=j.mata_kuliah_id where j.prodi=${p} and j.semester=${sem} order by j.hari,j.jam_mulai`
+        } else if (p) {
+          rows = await sql`select j.*,mk.nama as mata_kuliah_nama,mk.sks,mk.kode,mk.dosen from jadwal j join mata_kuliah mk on mk.id=j.mata_kuliah_id where j.prodi=${p} order by j.hari,j.jam_mulai`
+        } else if (sem) {
+          rows = await sql`select j.*,mk.nama as mata_kuliah_nama,mk.sks,mk.kode,mk.dosen from jadwal j join mata_kuliah mk on mk.id=j.mata_kuliah_id where j.semester=${sem} order by j.hari,j.jam_mulai`
+        } else {
+          rows = await sql`select j.*,mk.nama as mata_kuliah_nama,mk.sks,mk.kode,mk.dosen from jadwal j join mata_kuliah mk on mk.id=j.mata_kuliah_id order by j.hari,j.jam_mulai`
+        }
         return res.json(rows)
       }
       if (req.method === 'POST') {
@@ -182,7 +211,16 @@ export default async function handler(req, res) {
       if (req.method === 'GET') {
         const { kategori } = req.query
         const isAdmin = session.role === 'admin'
-        const rows = await sql`select p.*,u.email as author_email from pengumuman p left join users u on u.id=p.author_id where (${isAdmin ? null : true} is null or p.is_published=true) and (${kategori||null} is null or p.kategori=${kategori}) order by p.created_at desc`
+        let rows
+        if (isAdmin && kategori) {
+          rows = await sql`select p.*,u.email as author_email from pengumuman p left join users u on u.id=p.author_id where p.kategori=${kategori} order by p.created_at desc`
+        } else if (isAdmin) {
+          rows = await sql`select p.*,u.email as author_email from pengumuman p left join users u on u.id=p.author_id order by p.created_at desc`
+        } else if (kategori) {
+          rows = await sql`select p.*,u.email as author_email from pengumuman p left join users u on u.id=p.author_id where p.is_published=true and p.kategori=${kategori} order by p.created_at desc`
+        } else {
+          rows = await sql`select p.*,u.email as author_email from pengumuman p left join users u on u.id=p.author_id where p.is_published=true order by p.created_at desc`
+        }
         return res.json(rows)
       }
       if (req.method === 'POST') {
