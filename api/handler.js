@@ -2,6 +2,9 @@ import { neon } from '@neondatabase/serverless'
 import { jwtVerify, SignJWT } from 'jose'
 import { compare, hash } from 'bcryptjs'
 
+if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL env var is missing')
+if (!process.env.JWT_SECRET) throw new Error('JWT_SECRET env var is missing')
+
 const sql = neon(process.env.DATABASE_URL)
 const secret = new TextEncoder().encode(process.env.JWT_SECRET)
 
@@ -25,9 +28,10 @@ export default async function handler(req, res) {
   cors(res)
   if (req.method === 'OPTIONS') { res.status(204).end(); return }
 
-  // Parse path from URL (handles both catch-all query and direct URL)
-  const urlPath = req.url.split('?')[0]
-  const segments = urlPath.replace(/^\/api(\/handler)?/, '').split('/').filter(Boolean)
+  // Parse path — check query param first (Vercel catch-all rewrite), then req.url
+  const pathFromQuery = Array.isArray(req.query?.path) ? req.query.path.join('/') : req.query?.path
+  const urlPath = pathFromQuery ? `/${pathFromQuery}` : req.url.split('?')[0].replace(/^\/api(\/handler)?/, '')
+  const segments = urlPath.replace(/^\//, '').split('/').filter(Boolean)
   const [r0, r1, r2] = segments
   const id = r1 && !r2 && r1 !== 'login' && r1 !== 'register' && r1 !== 'me' && r1 !== 'stats' && r1 !== 'csv' ? r1 : null
 
