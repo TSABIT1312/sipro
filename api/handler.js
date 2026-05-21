@@ -36,18 +36,6 @@ export default async function handler(req, res) {
   const id = r1 && !r2 && r1 !== 'login' && r1 !== 'register' && r1 !== 'me' && r1 !== 'stats' && r1 !== 'csv' ? r1 : null
 
   try {
-    // === DEBUG (remove after diagnosis) ===
-    if (r0 === 'debug' && req.method === 'GET') {
-      return res.json({
-        segments,
-        reqUrl: req.url,
-        queryPath: req.query?.path,
-        hasDb: !!process.env.DATABASE_URL,
-        hasJwt: !!process.env.JWT_SECRET,
-        body: req.body,
-      })
-    }
-
     // === AUTH ===
     if (r0 === 'auth' && r1 === 'login' && req.method === 'POST') {
       const { identifier, password } = req.body
